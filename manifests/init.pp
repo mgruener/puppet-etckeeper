@@ -34,16 +34,13 @@ class etckeeper ($puppetintegration = str2bool(hiera("${module_name}::puppetinte
       mode   => '0754'
     }
 
-    # add the prerun and postrun commands only after a successfull
-    # etckeeper init
-    augeas { 'etckeeper puppet integration':
-      context => '/files/etc/puppet/puppet.conf/main',
-      incl    => '/etc/puppet/puppet.conf',
-      lens    => 'Puppet.lns',
-      changes => [
-        'set prerun_command /etc/puppet/etckeeper-commit-pre',
-        'set postrun_command /etc/puppet/etckeeper-commit-post'
-      ],
+    puppet::config { 'prerun_command':
+      value   => '/etc/puppet/etckeeper-commit-pre',
+      require => Exec['etckeeper init']
+    }
+
+    puppet::config { 'postrun_command':
+      value   => '/etc/puppet/etckeeper-commit-post',
       require => Exec['etckeeper init']
     }
   }
