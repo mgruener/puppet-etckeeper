@@ -1,4 +1,4 @@
-class etckeeper ($puppetintegration = str2bool(hiera('puppetintegration',true))) {
+class etckeeper ($puppetintegration = str2bool(hiera("${module_name}::puppetintegration",true))) {
   package { 'etckeeper':
     ensure => present,
   }
