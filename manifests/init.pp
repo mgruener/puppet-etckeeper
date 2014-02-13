@@ -1,4 +1,22 @@
-class etckeeper ($puppetintegration = str2bool(hiera("${module_name}::puppetintegration",true))) {
+class etckeeper (
+  $puppetintegration = true
+) {
+
+  $myclass = $module_name
+
+  case type($puppetintegration) {
+    'string': {
+      validate_re($puppetintegration, '^(true|false)$', "${myclass}::puppetintegration may be either 'true' or 'false' and is set to <${puppetintegration}>.")
+      $puppetintegration_real = str2bool($puppetintegration)
+    }
+    'boolean': {
+      $puppetintegration_real = $puppetintegration
+    }
+    default: {
+      fail("${myclass}::puppetintegration type must be true or false.")
+    }
+  }
+
   package { 'etckeeper':
     ensure => present,
   }
@@ -17,7 +35,7 @@ class etckeeper ($puppetintegration = str2bool(hiera("${module_name}::puppetinte
     refreshonly => true
   }
 
-  if $puppetintegration {
+  if $puppetintegration_real {
     file { '/etc/puppet/etckeeper-commit-pre':
       ensure => file,
       source => "puppet:///modules/${module_name}/etckeeper-commit-pre",
